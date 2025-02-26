@@ -165,24 +165,28 @@ done
 echo "Instalando Bacula Web..."
 apt install -y apache2 php php-cli php-sqlite3 libapache2-mod-php unzip
 cd /var/www/html
-wget https://github.com/bacula-web/bacula-web/releases/download/8.6.0/bacula-web-8.6.0.zip
-unzip bacula-web-8.6.0.zip
-mv bacula-web-8.6.0 bacula-web
+wget https://github.com/bacula-web/bacula-web/archive/refs/tags/v9.7.0.tar.gz
+tar -xvzf v9.7.0.tar.gz
+mv bacula-web-9.7.0 bacula-web
 chown -R www-data:www-data /var/www/html/bacula-web
 
 # Configuração do Apache para Bacula Web
 cat > /etc/apache2/sites-available/bacula-web.conf <<EOF
 <VirtualHost *:80>
-    DocumentRoot /var/www/html/bacula-web
-    <Directory /var/www/html/bacula-web>
+    DocumentRoot "/var/www/html/bacula-web/public"
+    ServerName bacula-web.domain.com
+
+    <Directory /var/www/html/bacula-web/public>
+        Options Indexes FollowSymLinks
         AllowOverride All
         Require all granted
     </Directory>
 </VirtualHost>
 EOF
 
+a2enmod rewrite
 a2ensite bacula-web
-systemctl reload apache2
+systemctl restart apache2
 
 # Instalação do Webmin
 echo "Instalando Webmin..."
